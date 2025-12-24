@@ -1,5 +1,6 @@
-import Sidebar from './side-bar';
+import AppSidebar from './side-bar';
 import Breadcrumb from './bread-crumb';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function MainLayout({
     children,
@@ -7,16 +8,21 @@ export default function MainLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <Sidebar />
+        <SidebarProvider>
+            <div className="flex min-h-screen bg-gray-50 w-full">
+                <AppSidebar />
 
-            <main className="flex-1 p-8">
-                <Breadcrumb />
+                <main className="flex-1 p-8">
+                    <div className="mb-4">
+                        <SidebarTrigger />
+                    </div>
+                    <Breadcrumb />
 
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    {children}
-                </div>
-            </main>
-        </div>
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </SidebarProvider>
     );
 }

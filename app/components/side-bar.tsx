@@ -2,50 +2,91 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubItem,
+    SidebarMenuSubButton,
+    SidebarFooter,
+} from '@/components/ui/sidebar';
+import { Home, FileText, List, Package } from 'lucide-react';
 
 const menuItems = [
-    { name: '홈', path: '/', icon: '🏠' },
-    { name: '대시보드', path: '/home', icon: '📊' },
-    { name: '사용자 관리', path: '/users', icon: '👥' },
-    { name: '설정', path: '/settings', icon: '⚙️' },
+    {
+        name: '콘텐츠',
+        icon: FileText,
+        items: [
+            { name: '시리즈', path: '/series' },
+        ],
+    },
+    {
+        name: '홈',
+        path: '/home',
+        icon: Home,
+        items: [
+            { name: '번들 관리', path: '/bundles' },
+        ],
+    },
 ];
 
-export default function Sidebar() {
+export default function AppSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="w-64 min-h-screen bg-gray-900 text-white p-6">
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold">Zero CMS</h1>
-            </div>
+        <Sidebar>
+            <SidebarContent>
+                <SidebarGroup>
+                    <div className="px-3 py-2">
+                        <h1 className="text-xl font-bold">Zero CMS</h1>
+                    </div>
+                </SidebarGroup>
 
-            <nav>
-                <ul className="space-y-2">
-                    {menuItems.map((item) => {
-                        const isActive = pathname === item.path;
-                        return (
-                            <li key={item.path}>
-                                <Link
-                                    href={item.path}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-gray-300 hover:bg-gray-800'
-                                        }`}
-                                >
-                                    <span className="text-xl">{item.icon}</span>
-                                    <span className="font-medium">{item.name}</span>
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </nav>
+                <SidebarGroup>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {menuItems.map((item) => (
+                                <SidebarMenuItem key={item.name}>
+                                    <SidebarMenuButton asChild>
+                                        <div className="flex items-center gap-2">
+                                            <item.icon className="w-4 h-4" />
+                                            <span>{item.name}</span>
+                                        </div>
+                                    </SidebarMenuButton>
+                                    {item.items && item.items.length > 0 && (
+                                        <SidebarMenuSub>
+                                            {item.items.map((subItem) => {
+                                                const isActive = pathname === subItem.path;
+                                                return (
+                                                    <SidebarMenuSubItem key={subItem.path}>
+                                                        <SidebarMenuSubButton asChild isActive={isActive}>
+                                                            <Link href={subItem.path}>
+                                                                <span>{subItem.name}</span>
+                                                            </Link>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                );
+                                            })}
+                                        </SidebarMenuSub>
+                                    )}
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
 
-            <div className="absolute bottom-6 left-6 right-6">
-                <div className="border-t border-gray-700 pt-4">
-                    <p className="text-sm text-gray-400">© 2025 CMS</p>
+            <SidebarFooter>
+                <div className="border-t pt-4 px-3">
+                    <p className="text-xs text-muted-foreground">© 2025 CMS</p>
                 </div>
-            </div>
-        </aside>
+            </SidebarFooter>
+        </Sidebar>
     );
 }
