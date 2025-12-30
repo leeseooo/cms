@@ -1,15 +1,15 @@
 'use client';
 
 import {
-    ColumnDef,
     flexRender,
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
     SortingState,
     getSortedRowModel,
+    getFilteredRowModel,
+    type ColumnFiltersState,
 } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
 import {
     Table,
     TableBody,
@@ -20,7 +20,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { ArrowUpDown } from 'lucide-react';
+import { getSeriesColumns } from './data-table-columns';
+import { DataTableToolbar } from './data-table-toolbar';
 
 interface DataTableProps<TData, _> {
     data: TData[];
@@ -32,56 +33,9 @@ export function DataTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([
         { desc: true, id: 'createdAt' }
     ]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-    const columns: ColumnDef<TData>[] = [
-        {
-            accessorKey: 'title',
-            header: '제목',
-        },
-        {
-            accessorKey: 'description',
-            header: '설명',
-        },
-        {
-            accessorKey: 'episodeCount',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        에피소드 수
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => {
-                return <div className="text-center">{row.getValue('episodeCount')}</div>;
-            },
-        },
-        {
-            accessorKey: 'status',
-            header: '상태',
-            cell: ({ row }) => {
-                const status = row.getValue('status') as string;
-                const statusMap = {
-                    active: { label: '활성', variant: 'default' as const },
-                    inactive: { label: '비활성', variant: 'secondary' as const },
-                    draft: { label: '초안', variant: 'outline' as const },
-                };
-                const statusInfo = statusMap[status as keyof typeof statusMap];
-                return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
-            },
-        },
-        {
-            accessorKey: 'createdAt',
-            header: '생성일',
-            cell: ({ row }) => {
-                const date = new Date(row.getValue('createdAt'));
-                return <div>{date.toLocaleDateString('ko-KR')}</div>;
-            },
-        },
-    ];
+    const columns = getSeriesColumns<TData>();
 
     const table = useReactTable({
         data,
@@ -90,13 +44,18 @@ export function DataTable<TData, TValue>({
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onColumnFiltersChange: setColumnFilters,
         state: {
             sorting,
+            columnFilters,
         },
     });
 
     return (
         <div className="space-y-4">
+            <DataTableToolbar table={table} />
+
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -147,6 +106,7 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
+
             <div className="flex items-center justify-end space-x-2">
                 <Button
                     variant="outline"
