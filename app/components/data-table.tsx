@@ -10,7 +10,6 @@ import {
     getSortedRowModel,
 } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
-import type { Series } from '../api/series/route';
 import {
     Table,
     TableBody,
@@ -21,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { ArrowUpDown } from 'lucide-react';
 
 interface DataTableProps<TData, _> {
     data: TData[];
@@ -29,7 +29,9 @@ interface DataTableProps<TData, _> {
 export function DataTable<TData, TValue>({
     data,
 }: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>([
+        { desc: true, id: 'createdAt' }
+    ]);
 
     const columns: ColumnDef<TData>[] = [
         {
@@ -42,7 +44,17 @@ export function DataTable<TData, TValue>({
         },
         {
             accessorKey: 'episodeCount',
-            header: '에피소드 수',
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        에피소드 수
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
             cell: ({ row }) => {
                 return <div className="text-center">{row.getValue('episodeCount')}</div>;
             },
